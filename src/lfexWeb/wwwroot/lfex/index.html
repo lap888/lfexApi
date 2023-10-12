@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-dns-prefetch-control" content="on" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta content="telephone=no" name="format-detection" />
+    <link rel="icon" href="./favicon.ico">
+    <meta name="version" version="201912241838">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">
+    <title>LFEX-小鱼全球交易所</title>
+    <meta name="keywords" content="LFEX-小鱼全球交易所" />
+    <meta name="description" content="" />
+    <meta itemprop="image" content="_50x50.jpg" />
+    <link rel="stylesheet" href="css/comm.mini.css" />
+</head>
+
+<body style="background-color: #4c8cec;">
+    <div class="t-box"><img src="image/lfex_logo.png" />
+        <p id="t-box">小鱼区块链全球交易所<br /><span>打造千万级区块链交易大数据</span><br /></p><button
+            style="width: 12rem; height: 3rem; font-weight: bold; box-shadow: 2px 2px 5px #888888;"
+            onclick="downapp()">下载LFEX</button>
+    </div>
+    <div class="list-box">
+        <ul>
+            <li><span>LFEX-小鱼区块链全球交易所-交易所新星</span><img src="https://file.yoyoba.cn//lfex/down.jpg" /></li>
+        </ul>
+    </div>
+    <div class="wxtips"><img src="image/live_weixin.png" /></div>
+    <div class="foot">
+        ©白皮书 <a href="https://github.com/little-fish-blockchain-globle-exchange/white-book">💐点击前往💐</a><br />
+        ©留言/call me <a
+            href="https://github.com/little-fish-blockchain-globle-exchange/white-book/issues">💐点击前往💐</a><br />
+        ©节点共享区块 <a href="https://github.com/little-fish-blockchain-globle-exchange/neo">💐点击前往💐</a><br />
+        ©开源社区资源共享 <a href="https://github.com/little-fish-blockchain-globle-exchange">💐点击前往💐</a><br />
+    </div>
+    <div class="foot">
+        友情链接：<a href="https://app.haowan.ba/#/download/hwb/">💐好玩吧</a>|<a href="http://yoyoba.cn">💐哟哟吧</a>|
+        <a href="#">💐本色世界</a>|<a href="#">💐趣步</a>|
+    </div>
+    <!-- <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script> -->
+    <script src="https://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script type="text/javascript" src="js/current.min.js"></script>
+    <script type="text/javascript">
+        var surl = "https://admin.yybex.cn/webapi/appDownloadUrl";
+        // var surl = "http://localhost:5000/webapi/appDownloadUrl";        
+        var ios_url = "";
+        var android_url = "";
+        var protocolStr = document.location.protocol;
+        $(function () {
+            let code = getParams("code");
+            if (code != null) {
+                $("#t-box").append('邀请码' + code + '<br/><button onclick="copyText(' + code + ');">复制邀请码</button>')
+            }
+            asyncGet(surl, function (data) {
+                if (data.code == 200) {
+                    android_url = data.data.android;
+                    ios_url = data.data.ios
+                }
+            })
+        });
+
+        function downapp() {
+            let sys = systemInfo();
+            if (sys == "wechat") {
+                $(".wxtips").css("display", "flex");
+                return;
+            }
+            if (ios_url == '' || android_url == '') {
+                alert('暂未开放...');
+                return;
+            }
+            if (sys == "apple") {
+                window.location.href = ios_url;
+                return;
+            }
+            if (protocolStr == "https") {
+                android_url = android_url.replace("http://", "https://")
+            }
+            window.location.href = android_url;
+            return;
+        }
+    </script>
+</body>
+
+</html>

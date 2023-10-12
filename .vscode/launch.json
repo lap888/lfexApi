@@ -1,0 +1,52 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "lfexWeb",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/lfexWeb/bin/Debug/netcoreapp2.1/lfexWeb.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/lfexWeb",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+                // "ASPNETCORE_ENVIRONMENT": "Production"
+            },
+            "requireExactSource": false
+        },
+        {
+            "name": "lfexApi",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "requireExactSource": false,
+            "program": "${workspaceFolder}/src/lfexApi/bin/Debug/netcoreapp2.1/lfexapi.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/lfexApi",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "^\\s*Now listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+                // "ASPNETCORE_ENVIRONMENT": "Production"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}"
+        }
+    ]
+}

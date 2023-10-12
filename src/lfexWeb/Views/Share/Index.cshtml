@@ -1,0 +1,69 @@
+﻿
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>哟哟吧-@ViewData["title"]</title>
+    @if (!String.IsNullOrWhiteSpace(ViewData["goUrl"].ToString()))
+    {
+        <style>
+            p {
+                margin: 0 0 10px;
+            }
+
+            body {
+                background-color: #f78b78;
+            }
+        </style>
+    }
+    else
+    {
+        <style>
+            p {
+                margin: 0 0 10px;
+            }
+        </style>
+    }
+</head>
+<body style="padding:0px;margin:0px;">
+    <div style="padding:0px;margin:0px;width:100%;background-color:#f78b78;">
+        <div style="float:left;width:35%;flex-direction:column;align-items:center;display:flex;padding-top:10px;">
+            <img src="@ViewData["headImage"]" style="height:70px;width:70px;border-radius:15px;" />
+            <span style="color:#ffffff;font-size:15px;font-weight:300;margin-top:5px;">@ViewData["userName"]</span>
+            <span style="color:#ffffff;font-size:13px;font-weight:300;margin-top:5px;">阅读：@ViewData["count"]</span>
+        </div>
+        <div style="width:65%;flex-direction:column;align-items:center;display:flex;">
+            <span style="color:#ffffff;font-size:20px;font-weight:600;margin-top:15px;">2020-哟哟吧-强势来袭!</span>
+            <span style="color:#ffffff;font-size:18px;margin-top:15px;">优质任务+聚合游戏</span>
+            <button style="height:30px;width:150px;border-radius:10px;background-color:#ffffff;margin-top:15px;margin-bottom:15px;" onclick="onClickButton()">
+                <span style="color:#f78b78;font-size:18px;font-weight:600">立即查看</span>
+            </button>
+        </div>
+    </div>
+    <div style="padding:0px;margin:0px;position: relative;">
+        @if (!String.IsNullOrWhiteSpace(ViewData["goUrl"].ToString()))
+        {
+            <div style="padding:0px;margin:0px;width:100%;background-color:#f78b78;flex-direction:column;align-items:center;display:flex;">
+                <img src="@ViewData["adImage"]" style="width:100%;margin-top:0px;" onclick="GoToUrl()" />
+                <span style="color:#ffffff;font-size:20px;font-weight:500;margin-top:15px;" onclick="GoToUrl()">@ViewData["title"]</span>
+                <span style="color:#ffffff;font-size:16px;margin-top:5px;margin-bottom:15px;" onclick="GoToUrl()">点击图片立即前往</span>
+            </div>
+        }
+        else
+        {
+            @Html.Raw(ViewData["data"].ToString())
+        }
+    </div>
+    <script language="javascript">
+         function onClickButton(){
+             window.location.href = "http://yoyoba.cn/down?code=@ViewData["code"]";
+        }
+        function GoToUrl(){
+             window.location.href = "@Html.Raw(ViewData["goUrl"].ToString())";
+        }
+    </script>
+</body>
+</html>

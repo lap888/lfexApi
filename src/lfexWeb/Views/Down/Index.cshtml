@@ -1,0 +1,179 @@
+﻿@{
+Layout = "";
+}
+<!DOCTYPE html>
+<html style="height:100%;">
+
+<head>
+    <meta charset="gb2312" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>哟哟吧</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+</head>
+
+<body style="height:100%;background-color:#f78b78;display:flex;flex-direction:column;align-items:center;padding:50px">
+    <div style="margin-top:20px">
+        <img src="~/images/logo118.png" style="height:80px;width:80px;border-radius:20px;" />
+    </div>
+    <div style="margin-top:30px">
+        <span style="color:#ffffff;font-size:25px;">2020-哟哟吧-强势来袭!</span>
+    </div>
+    <div style="margin-top:20px">
+        <span style="color:#ffffff;font-size:30px;font-weight:800">优质任务+聚合游戏</span>
+    </div>
+    <div style="margin-top:20px">
+        <span style="color:#ffffff;font-size:20px;">邀请码</span>
+    </div>
+    <div style="margin-top:20px">
+        <span style="font-size:20px;color:#ffffff" id="code"></span>
+    </div>
+    <div style="margin-top:20px">
+        <button style="height:35px;width:100px;border-radius:10px;background-color:#ffffff;" id="btn">点我复制</button>
+    </div>
+    <div style="margin-top:40px;align-items:center;">
+        <button style="height:50px;width:200px;border-radius:10px;background-color:#ffffff;" onclick="onClickButton()">
+            <span style="color:#f78b78;font-size:20px;font-weight:800">下载哟哟吧</span>
+        </button>
+    </div>
+    <div style="margin-top:80px;align-items:center;">
+        <span style="color:#ffffff;font-size:20px;font-weight:800">首页(一)</span>
+        <img src="~/images/ins1.png" style="height:90%;width:100%;border-radius:20px;margin-top:40px" />
+    </div>
+    <div style="margin-top:80px;align-items:center;">
+        <span style="color:#ffffff;font-size:20px;font-weight:800">首页(二)</span>
+        <img src="~/images/ins2.png" style="height:90%;width:100%;border-radius:20px;margin-top:40px" />
+    </div>
+    <div style="margin-top:80px;align-items:center;">
+        <span style="color:#ffffff;font-size:20px;font-weight:800">游戏大厅(一)</span>
+        <img src="~/images/ins3.png" style="height:90%;width:100%;border-radius:20px;margin-top:40px" />
+    </div>
+    <div style="margin-top:80px;align-items:center;">
+        <span style="color:#ffffff;font-size:20px;font-weight:800">交易大厅(一)</span>
+        <img src="~/images/ins4.png" style="height:90%;width:100%;border-radius:20px;margin-top:40px" />
+    </div>
+    <div style="margin-top:80px;align-items:center;">
+        <span style="color:#ffffff;font-size:20px;font-weight:800">哟帮(一)</span>
+        <img src="~/images/ins5.png" style="height:90%;width:100%;border-radius:20px;margin-top:40px" />
+    </div>
+    <div style="margin-top:80px;align-items:center;">
+        <span style="color:#ffffff;font-size:20px;font-weight:800">发布任务(一)</span>
+        <img src="~/images/ins6.png" style="height:90%;width:100%;border-radius:20px;margin-top:40px" />
+    </div>
+    <div style="margin-top:80px;align-items:center;">
+        <span style="color:#ffffff;font-size:20px;font-weight:800">我的(一)</span>
+        <img src="~/images/ins7.png" style="height:90%;width:100%;border-radius:20px;margin-top:40px" />
+    </div>
+    <footer style="z-index: 999;">
+        <div class="container" style="width:100%;margin-top:80px;margin-bottom:30px;">
+            <p style="text-align:center;">&copy; @DateTime.Now.Year - 河北星辰无限科技有限公司</p>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script language="javascript">
+        let url = '';
+        let iosUrl = '';
+        let params = '';
+        $(function () {
+            //ajax
+            $.ajax({
+                url: '/webapi/appDownloadUrl',
+                type: "GET",
+                async: true,
+                success: function (response) {
+                    if (response.code === 200) {
+                        url = response.data.android;
+                        iosUrl = response.data.ios;
+                    }
+                }
+            });
+            let code = getParams('code');
+            $("#code").text(code);
+            const btn = document.querySelector('#btn');
+            btn.addEventListener('click', () => {
+                const input = document.createElement('input');
+                document.body.appendChild(input);
+                input.setAttribute('value', code);
+                input.select();
+                if (document.execCommand('copy')) {
+                    document.execCommand('copy');
+                }
+                document.body.removeChild(input);
+                alert(`您已复制验证码:${code}`)
+            });
+        });
+
+        function getParams(name) {
+            var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+            var r = window.location.search.substr(1).match(reg);
+
+            if (r != null) {
+                return unescape(r[2]);
+            }
+            return '';
+        }
+        function onClickButton() {
+            if (isWeiChat()) {
+                loadHtml();
+                var weixinTipStyle = "#weixin-tip{position: fixed; left:0; top:0; background: rgba(0,0,0,0.8); filter:alpha(opacity=80); width: 100%; height:100%; z-index: 100;} #weixin-tip img{text-align: center; margin-top: 10%; width: 100%; height:70%;}";
+                loadStyleText(weixinTipStyle);
+                return;
+            }
+            if (url === '') {
+                alert('系统繁忙,请稍后再试...');
+            } else {
+                download();
+            }
+        }
+
+        function download() {
+            var u = navigator.userAgent;
+            if (u.indexOf('Android') > -1 || u.indexOf('Linux') > -1) {
+                window.location.href = url;
+            } else if (u.indexOf('iPhone') > -1) {
+                if (iosUrl === '') {
+                    alert('系统繁忙,请稍后再试...');
+                    return;
+                } else {
+                    window.location.href = iosUrl;
+                }
+            } else if (u.indexOf('Windows Phone') > -1) {
+                window.location.href = url;
+            } else {
+                window.location.href = url;
+            }
+        }
+
+        function isWeiChat() {
+            var ua = navigator.userAgent.toLowerCase();
+            if (ua.match(/MicroMessenger/i) == "micromessenger") {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function loadHtml() {
+            var div = document.createElement('div');
+            div.id = 'weixin-tip';
+            div.innerHTML = '<img src="/images/live_weixin.png" alt="请在微浏览器打开"/>';
+            document.body.appendChild(div);
+        }
+
+        function loadStyleText(weixinTipStyle) {
+            var style = document.createElement('style');
+            style.rel = 'stylesheet';
+            style.type = 'text/css';
+            try {
+                style.appendChild(document.createTextNode(weixinTipStyle));
+            } catch (e) {
+                style.styleSheet.cssText = weixinTipStyle; //ie9以下
+            }
+            var head = document.getElementsByTagName("head")[0]; //head标签之间加上style样式
+            head.appendChild(style);
+        }
+    </script>
+</body>
+
+</html>

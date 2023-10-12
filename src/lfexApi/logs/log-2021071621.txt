@@ -1,0 +1,8 @@
+2021-07-16 21:58:09.954 +08:00 [Error] Microsoft.AspNetCore.Session.SessionMiddleware: Error closing the session.
+StackExchange.Redis.RedisConnectionException: It was not possible to connect to the redis server(s); to create a disconnected multiplexer, disable AbortOnConnectFail. SocketFailure on PING
+   at StackExchange.Redis.ConnectionMultiplexer.ConnectAsync(String configuration, TextWriter log) in c:\code\StackExchange.Redis\StackExchange.Redis\StackExchange\Redis\ConnectionMultiplexer.cs:line 799
+   at Microsoft.Extensions.Caching.Redis.RedisCache.ConnectAsync(CancellationToken token)
+   at Microsoft.Extensions.Caching.Redis.RedisCache.GetAndRefreshAsync(String key, Boolean getData, CancellationToken token)
+   at Microsoft.Extensions.Caching.Redis.RedisCache.RefreshAsync(String key, CancellationToken token)
+   at Microsoft.AspNetCore.Session.DistributedSession.CommitAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Session.SessionMiddleware.Invoke(HttpContext context)

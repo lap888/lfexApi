@@ -1,0 +1,167 @@
+﻿@{
+    ViewData["Title"] = "充值订单";
+}
+@using domain.enums
+<style>
+    .form-inline .col-sm-12 {
+        line-height: 55px;
+    }
+
+    .form-inline .col-sm-2 {
+        width: 80px;
+    }
+
+    .form-inline .col-sm-4 .col-sm-4 {
+        line-height: 35px;
+    }
+
+    .form-inline .control-label {
+        text-align: right;
+    }
+
+    .search .form-inline {
+        line-height: 40px;
+    }
+</style>
+
+<div class="row search">
+    <div class="form-inline">
+        <div class="form-inline">
+            <div class="form-inline">
+                <label control-label>会员编号:</label>
+                <input type="text" class="form-control" size="8" ng-model="search.userId" />
+                <label control-label>会员手机号:</label>
+                <input type="text" class="form-control" size="12" ng-model="search.mobile" />
+                <label control-label>充值号码:</label>
+                <input type="text" class="form-control" size="12" ng-model="search.rechargePhone" />
+                <label control-label>充值状态:</label>
+                <select class="form-control" style="display:inline-block;width:auto;" ng-model="search.state">
+                    <option value="0" selected>全部</option>
+                    <option value="1000">充值成功</option>
+                    <option value="1001">处理中</option>
+                    <option value="1005">充值失败</option>
+                    <option value="1007">未处理</option>
+                    <option value="1009">已退款</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" type="button" ng-click="pageChanged(true)">搜索</button>
+    </div>
+</div>
+<table class="table table-hover table-condensed table-bordered" style="width:auto;">
+    <thead>
+        <tr style="height:35px;">
+            <th style="width: 2%;">序号</th>
+            <th style="width: 3%;">订单号</th>
+            <th style="width: 3%;">渠道单号</th>
+            <th style="width: 2%;">会员编号</th>
+            <th style="width: 3%;">充值号码</th>
+            <th style="width: 2%;">面值</th>
+            <th style="width: 2%;">支付糖果</th>
+            <th style="width: 2%;">支付果皮</th>
+            <th style="width: 2%;">进货价</th>
+            <th style="width: 3%;">状态</th>
+            <th style="width: 5%;">充值时间</th>
+            <th style="width: 5%;">更新时间</th>
+            <th style="width: 3%;">备注</th>
+            <th style="width: 5%;">操作</th>
+        </tr>
+    </thead>
+    <tbody class="wait-loaded">
+        <tr ng-repeat="m in List">
+            <td>{{m.id}}</td>
+            <td>{{m.orderNo}}</td>
+            <td>{{m.channelNo}}</td>
+            <td>{{m.userId}}</td>
+            <td>{{m.account}}</td>
+            <td>{{m.faceValue}}</td>
+            <td>{{m.payCandy}}</td>
+            <td>{{m.payPeel}}</td>
+            <td>{{m.purchasePrice}}</td>
+            <td ng-switch="{{m.state}}">
+                <div ng-switch-when="0" style="color:green;">未知</div>
+                <div ng-switch-when="1000" style="color:darkgoldenrod;">充值成功</div>
+                <div ng-switch-when="1001" style="color:red;">充值中</div>
+                <div ng-switch-when="1005" style="color:red;">充值失败</div>
+                <div ng-switch-when="1007" style="color:red;">未处理</div>
+                <div ng-switch-when="1007" style="color:red;">已退款</div>
+            </td>
+            <td>{{m.createTime}}</td>
+            <td>{{m.updateTime}}</td>
+            <td>{{m.remark}}</td>
+            <td>
+                <a style="display:{{m.state == 1005 ? 'black' : 'none'}};" ng-click="Refund(m)" href="javascript:void(0);">退款</a>
+                <a style="display:{{m.state != 1000 ? 'black' : 'none'}};" ng-click="Query(m)" href="javascript:void(0);">重查</a>
+                <a style="display:{{m.state == 1005 ? 'black' : 'none'}};" ng-click="Succeed(m)" href="javascript:void(0);">充值成功</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div class="mypager wait-loaded">
+    <ul uib-pagination total-items="search.recordCount" items-per-page="search.pageSize" ng-change="pageChanged()" ng-model="search.pageIndex" max-size="7"
+        class="pagination-sm" boundary-links="true" num-pages="search.numPages" boundary-link-numbers="true" first-text="首页" last-text="末页" previous-text="上一页" next-text="下一页"></ul>
+    <div class="recordCount">共 {{search.recordCount}} 条</div>
+</div>
+@section Scripts{
+    <script type="text/javascript">
+        function showimage(obj) {
+            $("#ShowImage_Form").modal("show");
+            $("#ShowImage_Form").find("#img_show").html("<img src='" + obj.src + "' class='carousel-inner img-responsive img-rounded' style='max-width:350px; margin: 0 auto;'/>");
+        }
+    </script>
+    <script type="text/javascript">
+        $angular.add(function ($scope, $query, $timeout, $sce) {
+            $scope.search = { pageIndex: 1, pageSize: 20 };
+
+            $scope.pageChanged = function (reindex) {
+                if (reindex) {
+                    $scope.search.pageIndex = 1;
+                }
+                $query.post("/Recharge/List", $scope.search, function (response) {
+                    if (response.code === 200) {
+                        $scope.List = response.data;
+                        $scope.search.recordCount = response.recordCount;
+                    } else {
+                        $Alert(response.message);
+                    }
+                });
+            };
+            $scope.Query = function (model) {
+                $Confirm("重新查询订单状态", function () {
+                    $query.post("/Recharge/Query", model, function (response) {
+                        if (response.code === 200) {
+                            $scope.pageChanged();
+                        } else {
+                            $Alert(response.message);
+                        }
+                    });
+                }, "消息提醒");
+            }
+            $scope.Refund = function (model) {
+                $Confirm("你确定要退款吗?", function () {
+                    $query.post("/Recharge/Refund", model, function (response) {
+                        if (response.code === 200) {
+                            $scope.pageChanged();
+                        } else {
+                            $Alert(response.message);
+                        }
+                    });
+                }, "消息提醒");
+            }
+            $scope.Succeed = function (model) {
+                $Confirm("你确定人工充值了吗?", function () {
+                    $query.post("/Recharge/Succeed", model, function (response) {
+                        if (response.code === 200) {
+                            $scope.pageChanged();
+                        } else {
+                            $Alert(response.message);
+                        }
+                    });
+                }, "消息提醒");
+            }
+            $scope.pageChanged();
+        });
+
+    </script>
+
+}

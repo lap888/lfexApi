@@ -1,0 +1,31 @@
+@{
+ViewData["Title"] = "文本编辑";
+}
+<style>
+    .form-inline .col-sm-12 {
+        line-height: 55px;
+    }
+
+    .form-inline .col-sm-4 .col-sm-4 {
+        line-height: 35px;
+    }
+
+    .form-inline .control-label {
+        text-align: right;
+    }
+</style>
+<form name="myForm">
+    <div class="form-inline">
+        <div class="col-sm-12">
+            <textarea class="ueditor" style="height:320px;max-width:none;" ng-model="m.content"
+                placeholder="描述说明"></textarea>
+            </textarea>
+        </div>
+    </div>
+</form>
+@section Scripts{
+<script type="text/javascript">
+    $angular.add(function ($scope, $query, $timeout, $sce) {
+    });
+</script>
+}

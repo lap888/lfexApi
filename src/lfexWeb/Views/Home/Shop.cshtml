@@ -1,0 +1,154 @@
+@{
+    ViewData["Title"] = "店铺管理";
+}
+@using domain.enums
+<style>
+    .form-inline .col-sm-12 { line-height: 55px; }
+    .form-inline .col-sm-2 { width: 80px; }
+    .form-inline .col-sm-4 .col-sm-4 { line-height: 35px; }
+    .form-inline .control-label { text-align: right; }
+    .search .form-inline { line-height: 40px; }
+</style>
+
+<div class="row search">
+    <div class="form-inline">
+
+        <div class="form-inline">
+            <input type="text" class="form-control" placeholder="用户名" ng-model="search.NickName" ng-keyup="enterEvent($event)" />
+        </div>
+        <div class="form-inline">
+            <input type="text" class="form-control" placeholder="店铺电话" ng-model="search.PhoneNum" ng-keyup="enterEvent($event)" />
+        </div>
+        <div class="form-inline">
+            <label control-label>审核状态:</label>
+            <select class="form-control" style="display:inline-block;width:auto;" ng-model="search.Status">
+                <option value="-1">请选择</option>
+                <option value="0">未审核</option>
+                <option value="1">审核通过</option>
+                <option value="2">审核失败</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" type="button" ng-click="pageChanged(true)">搜索</button>
+    </div>
+    <br />
+</div>
+<table class="table table-hover table-condensed table-bordered" style="width:auto;">
+    <thead>
+        <tr style="height:35px;">
+            <th style="width: 3%;">序号</th>
+            <th style="width: 5%;">店铺名称</th>
+            <th style="width: 5%;">Logo</th>
+            <th style="width: 5%;">商家电话</th>
+            <th style="width: 5%;">用户ID</th>
+            <th style="width: 5%;">用户名</th>
+            <th style="width: 5%;">创建时间</th>
+            <th style="width: 5%;">状态</th>
+            <th style="width: 7%;">审核</th>
+        </tr>
+    </thead>
+    <tbody class="wait-loaded" >
+        <tr ng-repeat="m in List">
+            <td>{{m.id}}</td>
+            <td>{{m.title}}</td>
+            <td class="_image">
+                <img ng-src="{{m.logoPic}}" onclick="showimage(this)" style="width:30px;height:30px" />
+            </td>
+            <td>{{m.phoneNum}}</td>
+            <td>{{m.userId}}</td>
+            <td>{{m.nickName}}</td>
+            <td>{{m.createTime|date:'yyyy-MM-dd'}}</td>
+            <td>{{m.status==0?'未审核':m.status==1?'审核通过':'审核失败'}}</td>
+            <td>
+                <a ng-click="showUpdateStatusModal(m)" href="javascript:void(0);">审核</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div class="modal fade in" id="ShowImage_Form" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document" style="height:100%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="img_show">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade in" id="addModel" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document" style="height:100%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body" ng-form="myModel">
+                <input class="form-control" type="text" ng-model="shop.id" style="display:none;" />
+                <div class="row">
+                    <div class="form-group col-sm-6">
+                            <label class="control-label col-sm-4">请选择:</label>
+                            <div class="col-sm-8">
+                                <select class="form-control" style="display:inline-block;width:auto;" ng-model="shop.Status">
+                                    <option value="-1">请选择</option>
+                                    <option value="1">同意</option>
+                                    <option value="2">拒绝</option>
+                                </select>
+                            </div>
+                        </div>
+                    <div class="form-group col-sm-6">
+                        <label class="control-label col-sm-4">驳回原因:</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" style="height:120px;max-width:none;" ng-model="shop.content" placeholder="驳回原因">
+                            </textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-disabled="myModel.$invalid" ng-click="updateStatus()">保 存</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script type="text/javascript">
+        function showimage(obj) {
+            $("#ShowImage_Form").modal("show");
+            $("#ShowImage_Form").find("#img_show").html("<img src='" + obj.src + "' class='carousel-inner img-responsive img-rounded' />");
+        }
+    </script>
+    <script type="text/javascript">
+        $angular.add(function ($scope, $query, $timeout, $sce) {
+            $scope.search = { pageIndex: 1, pageSize: 10 };
+            $scope.search.Status = "-1";
+            $scope.pageChanged = function (reindex) {
+                if (reindex) {
+                    $scope.search.pageIndex = 1;
+                }
+                $query.post("/webapi/ShopList", $scope.search, function (response) {
+                    if (response.code === 200) {
+                        $scope.List = response.data;
+                        $scope.search.recordCount = response.recordCount;
+                    } else {
+                        $Alert(response.message);
+                    }
+                });
+            };
+            $scope.showUpdateStatusModal = function (model) {
+                $scope.shop={id:model.id,Status:"-1"};
+                $("#addModel").modal("show");
+            };
+            $scope.updateStatus = function(){
+                $query.get(`/webapi/UpdateShopStatus?id=${$scope.shop.id}&status=${$scope.shop.Status}`,res=>{
+                    $scope.pageChanged();
+                    $("#addModel").modal("hide");
+                    $Alert("审核通过");
+                });
+            }
+            $scope.pageChanged();
+        });
+        
+    </script>
+
+}

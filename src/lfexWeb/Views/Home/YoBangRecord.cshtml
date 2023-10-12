@@ -1,0 +1,231 @@
+﻿@{
+    ViewData["Title"] = "记录管理";
+}
+@using domain.enums
+<style>
+    .form-inline .col-sm-12 {
+        line-height: 55px;
+    }
+
+    .form-inline .col-sm-2 {
+        width: 80px;
+    }
+
+    .form-inline .col-sm-4 .col-sm-4 {
+        line-height: 35px;
+    }
+
+    .form-inline .control-label {
+        text-align: right;
+    }
+
+    .search .form-inline {
+        line-height: 40px;
+    }
+</style>
+
+<div class="row search">
+    <div class="form-inline">
+        <div class="form-inline">
+            <div class="form-inline">
+                <label control-label>任务编号:</label>
+                <input type="number" class="form-control" size="8" ng-model="search.taskId" />
+                <label control-label>手机号:</label>
+                <input type="text" class="form-control" size="12" ng-model="search.mobile" />
+                <label control-label>任务状态:</label>
+                <select class="form-control" style="display:inline-block;width:auto;" ng-model="search.recordState">
+                    <option value="0" selected>全部</option>
+                    <option value="1">已报名</option>
+                    <option value="2">已提交</option>
+                    <option value="3">已申诉</option>
+                    <option value="4">已完成</option>
+                    <option value="5">已取消</option>
+                    <option value="6">已拒绝</option>
+                    <option value="7">已超时</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" type="button" ng-click="pageChanged(true)">搜索</button>
+    </div>
+</div>
+<table class="table table-hover table-condensed table-bordered" style="width:auto;">
+    <thead>
+        <tr style="height:35px;">
+            <th style="width: 2%;">记录ID</th>
+            <th style="width: 2%;">任务ID</th>
+            <th style="width: 2%;">会员ID</th>
+            <th style="width: 3%;">会员昵称</th>
+            <th style="width: 5%;">任务标题</th>
+            <th style="width: 4%;">报名时间</th>
+            <th style="width: 4%;">任务超时</th>
+            <th style="width: 4%;">提交时间</th>
+            <th style="width: 4%;">审核超时</th>
+            <th style="width: 3%;">状态</th>
+            <th style="width: 3%;">说明</th>
+            <th style="width: 5%;">操作</th>
+        </tr>
+    </thead>
+    <tbody class="wait-loaded">
+        <tr ng-repeat="m in List">
+            <td>{{m.recordId}}</td>
+            <td>{{m.taskId}}</td>
+            <td>{{m.userId}}</td>
+            <td>{{m.userNick}}</td>
+            <td>{{m.taskTitle}}</td>
+            <td>{{m.entryTime}}</td>
+            <td>{{m.cutoffTime}}</td>
+            <td>{{m.submitTime}}</td>
+            <td>{{m.auditCutoffTime}}</td>
+            <td ng-switch="{{m.recordState}}">
+                <div ng-switch-when="1" style="color:orangered;">已报名</div>
+                <div ng-switch-when="2" style="color:green;">已提交</div>
+                <div ng-switch-when="3" style="color:red;">已申诉</div>
+                <div ng-switch-when="4" style="color:darkgoldenrod;">已完成</div>
+                <div ng-switch-when="5" style="color:black;">已取消</div>
+                <div ng-switch-when="6" style="color:chartreuse;">已拒绝</div>
+                <div ng-switch-when="7" style="color:chartreuse;">已超时</div>
+            </td>
+            <td>{{m.remark}}</td>
+            <td>
+                <a ng-click="ViewDetail(m)" href="javascript:void(0);">任务详情</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div class="mypager wait-loaded">
+    <ul uib-pagination total-items="search.recordCount" items-per-page="search.pageSize" ng-change="pageChanged()" ng-model="search.pageIndex" max-size="7"
+        class="pagination-sm" boundary-links="true" num-pages="search.numPages" boundary-link-numbers="true" first-text="首页" last-text="末页" previous-text="上一页" next-text="下一页"></ul>
+    <div class="recordCount">共 {{search.recordCount}} 条</div>
+</div>
+<div class="modal fade in" id="TaskDetailView" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document" style="height:80%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div style="display:inline-block; font-size:14px;">任务步骤</div>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <div style="min-height:750px;">
+                    <div class="form-inline" ng-repeat="item in task.taskSteps">
+                        <div class="col-sm-12" ng-switch="{{item.type}}">
+                            <label class="control-label col-sm-3" ng-switch-when="1">任务链接:</label>
+                            <label class="control-label col-sm-3" ng-switch-when="2">示例图文:</label>
+                            <label class="control-label col-sm-3" ng-switch-when="3">二维码:</label>
+                            <label class="control-label col-sm-3" ng-switch-when="4">复制文本:</label>
+                            <label class="control-label col-sm-3" ng-switch-when="5">收集截图:</label>
+                            <label class="control-label col-sm-3" ng-switch-when="6">收集内容:</label>
+                            <div class="col-sm-9" ng-switch-when="1">
+                                <input class="form-control" type="text" ng-model="item.content" placeholder="" />
+                                <div style="display:inline-block">说明：{{item.describe}}</div>
+                            </div>
+                            <div class="col-sm-9" ng-switch-when="2">
+                                <img src="{{item.content}}" onclick="showimage(this)" width="150" height="200" />
+                                <div style="display:inline-block">说明：{{item.describe}}</div>
+                            </div>
+                            <div class="col-sm-9" ng-switch-when="3">
+                                <img src="{{item.content}}" onclick="showimage(this)" width="150" height="150" />
+                                <div style="display:inline-block">说明：{{item.describe}}</div>
+                            </div>
+                            <div class="col-sm-9" ng-switch-when="4">
+                                <input class="form-control" type="text" ng-model="item.content" placeholder="" />
+                                <div style="display:inline-block">说明：{{item.describe}}</div>
+                            </div>
+                            <div class="col-sm-9" ng-switch-when="5">
+                                <img src="{{item.content}}" onclick="showimage(this)" width="150" height="150" />
+                                <div style="display:inline-block">说明：{{item.describe}}</div>
+                            </div>
+                            <div class="col-sm-9" ng-switch-when="6">
+                                <input class="form-control" type="text" ng-model="item.content" placeholder="" />
+                                <div style="display:inline-block">说明：{{item.describe}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>注:</div>
+                    <div class="col-sm-12">
+                        <div class="col-sm-8"></div>
+                        <div class="col-sm-2">
+                            <button class="btn btn-info" type="button" ng-click="TaskAudit(task,4)">通过</button>
+                        </div>
+                        <div class="col-sm-2">
+                            <button class="btn btn-warning" type="button" ng-click="TaskAudit(task,6)">拒绝</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade in" id="ShowImage_Form" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document" style="height:80%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="img_show" style="text-align:center;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script type="text/javascript">
+        function showimage(obj) {
+            $("#ShowImage_Form").modal("show");
+            $("#ShowImage_Form").find("#img_show").html("<img src='" + obj.src + "' class='carousel-inner img-responsive img-rounded' style='max-width:350px; margin: 0 auto;'/>");
+        }
+    </script>
+    <script type="text/javascript">
+        $angular.add(function ($scope, $query, $timeout, $sce) {
+            $scope.search = { pageIndex: 1, pageSize: 20 };
+
+            $scope.pageChanged = function (reindex) {
+                if (reindex) {
+                    $scope.search.pageIndex = 1;
+                }
+                if ($scope.t == null || $scope == undefined) {
+                    $query.post("/YoBang/Categories", null, function (response) {
+                        if (response.code === 200) {
+                            $scope.t = response.data;
+                        }
+                    });
+                }
+                $query.post("/YoBang/TaskRecord", $scope.search, function (response) {
+                    if (response.code === 200) {
+                        $scope.List = response.data;
+                        $scope.search.recordCount = response.recordCount;
+                    } else {
+                        $Alert(response.message);
+                    }
+                });
+            };
+            $scope.ViewDetail = function (model) {
+                if ($scope.t == null || $scope == undefined) {
+                    $query.post("/YoBang/Categories", null, function (response) {
+                        if (response.code === 200) {
+                            $scope.t = response.data;
+                        }
+                    });
+                }
+                $scope.task = model;
+                $("#TaskDetailView").modal("show");
+            }
+            $scope.TaskAudit = function (model, state) {
+                model.recordState = state;
+                $Confirm("你确定审核此任务吗?", function () {
+                    $query.post("/YoBang/AuditRecord", model, function (response) {
+                        if (response.code === 200) {
+                            $("#TaskDetailView").modal("hide");
+                            $scope.pageChanged();
+                        } else {
+                            $Alert(response.message);
+                        }
+                    });
+                }, "消息提醒");
+            }
+            $scope.pageChanged();
+        });
+
+    </script>
+
+}

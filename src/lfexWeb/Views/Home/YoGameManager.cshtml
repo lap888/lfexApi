@@ -1,0 +1,378 @@
+@{
+    ViewData["Title"] = "游戏管理";
+}
+@using domain.enums
+<style>
+    .form-inline .col-sm-12 { line-height: 55px; }
+    .form-inline .col-sm-2 { width: 80px; }
+    .form-inline .col-sm-4 .col-sm-4 { line-height: 35px; }
+    .form-inline .control-label { text-align: right; }
+    .search .form-inline { line-height: 40px; }
+</style>
+
+<div class="row search">
+    <div class="form-inline">
+        <a class="btn btn-primary" ng-click="showAddModal(m)" href="javascript:void(0);">添加</a>
+    </div>
+</div>
+<table class="table table-hover table-condensed table-bordered" style="width:auto;">
+    <thead>
+        <tr style="height:35px;">
+            <th style="width: 3%;">序号</th>
+            <th style="width: 5%;">类型</th>
+            <th style="width: 5%;">Logo</th>
+            <th style="width: 5%;">名称</th>
+            <th style="width: 5%;">首发</th>
+            <th style="width: 5%;">SdwId</th>
+            <th style="width: 5%;">类别</th>
+            <th style="width: 40%;">描述</th>
+            <th style="width: 7%;">操作</th>
+        </tr>
+    </thead>
+    <tbody class="wait-loaded" >
+        <tr ng-repeat="m in List">
+            <td>{{m.id}}</td>
+            <td>{{m.gType}}</td>
+            <td class="_image">
+                <img ng-src="http://file.yoyoba.cn/{{m.gameLogoUrl}}" onclick="showimage(this)" style="width:30px;height:30px" />
+            </td>
+            <td>{{m.gTitle}}</td>
+            <td>{{m.isFirstPublish?'是':'否'}}</td>
+            <td>{{m.sdwId}}</td>
+            <td>{{m.categoryName}}</td>
+            <td>{{m.description}}</td>
+
+            <td>
+                <a ng-click="delAdPic(m)" href="javascript:void(0);">删除</a> |
+                <a ng-click="showAddGameDetailModal(m)" href="javascript:void(0);">详情</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div class="mypager wait-loaded">
+    <ul uib-pagination total-items="search.recordCount" items-per-page="search.pageSize" ng-change="pageChanged()" ng-model="search.pageIndex" max-size="7"
+        class="pagination-sm" boundary-links="true" num-pages="search.numPages" boundary-link-numbers="true" first-text="首页" last-text="末页" previous-text="上一页" next-text="下一页"></ul>
+    <div class="recordCount">共 {{search.recordCount}} 条</div>
+</div>
+@* 大图展示 *@
+<div class="modal fade in" id="ShowImage_Form" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document" style="height:100%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="img_show">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@* 添加游戏内容 *@
+<div class="modal fade in" id="addModel" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document" style="height:100%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <form name="myForm">
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="setting_1">
+                            <div class="form-inline">
+                                <input class="form-control" type="text" data-ng-model="model1.id" style="display:none;" />
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">类别:</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" ng-model="model1.gameCategoryId" required>
+                                            <option value="">请选择</option>
+                                            <option value="1">棋牌</option>
+                                            <option value="2">角色</option>
+                                            <option value="3">传奇</option>
+                                            <option value="4">策略</option>
+                                            <option value="5">卡牌</option>
+                                            <option value="6">挂机</option>
+                                            <option value="7">经营</option>
+                                            <option value="8">休闲</option>
+                                            <option value="9">女生</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">分类:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.gType" placeholder="分类 H5 App" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">游戏平台:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.gPlatform" placeholder="游戏平台 0 all 1 android 2 ios" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">名称:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.gTitle" placeholder="名称" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">是否首发:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.isFirstPublish" placeholder="是否首发 1 是 0 不是" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">简介:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.synopsis" placeholder="简介" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">gtProportionl:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.gtProportionl" placeholder="gtProportionl" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">gtVIP:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.gtVIP" placeholder="gtVIP" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">gPinyin:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.gPinyin" placeholder="gPinyin" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">大小:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.gSize" placeholder="大小" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">版本:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.gVersion" placeholder="版本" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">折扣:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.discount" placeholder="折扣" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">描述:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.description" placeholder="描述" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">gH5Url:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.gH5Url" placeholder="gH5Url" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">供应商ID:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.gameSupplierId" placeholder="供应商ID" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">是否糖果抵扣:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.useGem" placeholder="是否糖果抵扣 1 是 0 不是" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">糖果抵扣率:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.useGemRate" placeholder="糖果抵扣率" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">展示:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.isShow" placeholder="是否展示 1 是 0 不是" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">公司分成比例:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.companyShareRatio" placeholder="公司分成比例" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">sdwId:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.sdwId" placeholder="sdwId" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">gSort:</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" type="text" ng-model="model1.gSort" placeholder="gSort" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-4">游戏Logo:</label>
+                                    <div class="col-sm-8">
+                                        <input type="file" ng-model="model1.imageUrl" title="点击上传图片" class="form-control" style="position:absolute;width:100%;height:100%;opacity:0;filter:alpha(opacity=0);cursor:pointer;" accept="image/png,image/jpeg,image/bmp" required onchange="$(this).scope().uploadHeadImage(this)" />
+                                        <img ng-src="{{model1.imageUrl}}" style="max-width:250px;" title="浏览图片" alt="点击上传图片" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-disabled="myModel.$invalid" ng-click="save()">保 存</button>
+            </div>
+        </div>
+    </div>
+</div>
+@* 添加游戏内容 *@
+<div class="modal fade in" id="addGameModel" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document" style="height:100%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <form name="myForm">
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="setting_1">
+                            <div class="form-inline">
+                                <input class="form-control" type="text" data-ng-model="model1.id" style="display:none;" />
+                                <div class="col-sm-12">
+                                    <table class="table table-hover table-condensed table-bordered" style="width:auto;">
+                                        <thead>
+                                            <tr style="height:35px;">
+                                                <th style="width: 20%;">序号</th>
+                                                <th style="width: 80%;">游戏详情图</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="wait-loaded" >
+                                            <tr ng-repeat="m in GameList">
+                                                <td>{{m.id}}</td>
+                                                <td class="_image">
+                                                    <img ng-src="http://file.yoyoba.cn/{{m.url}}" style="width:50%;height:20%" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-sm-12">
+                                    <input type="file" ng-model="model1.imageUrl" title="点击上传图片" class="form-control" style="position:absolute;width:100%;height:100%;opacity:0;filter:alpha(opacity=0);cursor:pointer;" accept="image/png,image/jpeg,image/bmp" required onchange="$(this).scope().uploadHeadImage(this)" />
+                                    <img ng-src="{{model1.imageUrl}}" style="max-width:250px;" title="浏览图片" alt="点击上传图片" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-disabled="myModel.$invalid" ng-click="saveGame()">保 存</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script type="text/javascript">
+        function showimage(obj) {
+            $("#ShowImage_Form").modal("show");
+            $("#ShowImage_Form").find("#img_show").html("<img src='" + obj.src + "' class='carousel-inner img-responsive img-rounded' />");
+        }
+    </script>
+    <script type="text/javascript">
+        $angular.add(function ($scope, $query, $timeout, $sce) {
+            $scope.search = { pageIndex: 1, pageSize: 10 };
+            $scope.showAddModal = function (model) {
+                $scope.model1 = {gameCategoryId:"",imageUrl:"/images/add_pic.png"};
+                $("#addModel").modal("show");
+            };
+            $scope.showAddGameDetailModal = function (model) {
+                $scope.model1 = {id:model.id,imageUrl:"/images/add_pic.png"};
+                $query.get("/webapiV2/GameDetailList?id="+model.id, function (response) {
+                    if (response.code === 200) {
+                        $scope.GameList = response.data;
+                    } else {
+                        $Alert(response.message);
+                    }
+                });
+                $("#addGameModel").modal("show");
+            };
+            $scope.saveGame = function(){
+                $query.post(`/webapiV2/AddGameDetail`,$scope.model1,res=>{
+                    if(res.code==200){
+                        $scope.pageChanged();
+                        $("#addGameModel").modal("hide");
+                    }else{
+                        $Alert(response.message);
+                    }
+                    
+                });
+            }
+            
+            $scope.save = function(){
+                $query.post(`/webapiV2/AddGame`,$scope.model1,res=>{
+                    if(res.code==200){
+                        $scope.pageChanged();
+                        $("#addModel").modal("hide");
+                    }else{
+                        $Alert(response.message);
+                    }
+                    
+                });
+            }
+            $scope.pageChanged = function (reindex) {
+                if (reindex) {
+                    $scope.search.pageIndex = 1;
+                }
+                $query.post("/webapiV2/GameList", $scope.search, function (response) {
+                    if (response.code === 200) {
+                        $scope.List = response.data;
+                        $scope.search.recordCount = response.recordCount;
+                    } else {
+                        $Alert(response.message);
+                    }
+                });
+            };
+            $scope.delAdPic = function (model) {
+                $Confirm("你确定要删除该广告吗?", function () {
+                    $query.post("/webapiV2/DelGame", model, function (response) {
+                        if (response.code === 200) {
+                            $scope.pageChanged();
+                        } else {
+                            $Alert(response.message);
+                        }
+                    });
+                }, "消息提醒");
+            };
+            $scope.pageChanged();
+            $scope.uploadHeadImage = function (input) {
+                var reader = new FileReader();
+                reader.onloadend = function (e) {
+                    var img = new Image();
+                    img.onload = function () {
+                        //生成比例
+                        var w = img.width;
+                        var h = img.height;
+                        //生成canvas
+                        var canvas = document.createElement('canvas');
+                        var ctx = canvas.getContext('2d');
+                        $(canvas).attr({ width: w, height: h });
+                        ctx.drawImage(img, 0, 0, w, h);
+                        $scope.model1.imageUrl = canvas.toDataURL('image/png', 0.2);
+                        $scope.$apply();
+                    }
+                    img.src = reader.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            };
+        });
+        
+    </script>
+
+}

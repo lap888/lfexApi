@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- <TargetFramework>netcoreapp2.2</TargetFramework> -->
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" /> -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.2" />
+    <!-- <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" /> -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.1.2" />
+    <!-- <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" /> -->
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.1" />
+    <!-- <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" /> -->
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />
+    <!-- <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" /> -->
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.1.3" />
+    <!-- <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" /> -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1" />
+    <PackageReference Include="StackExchange.Redis" Version="2.0.495" />
+    <!-- <PackageReference Include="Zero.Logging.File" Version="2.2.1" /> -->
+    <PackageReference Include="Zero.Logging.File" Version="2.1.0" />
+    <PackageReference Include="ZKweb.System.Drawing" Version="4.0.1" />
+    <PackageReference Include="CSRedisCore" Version="3.4.0" />
+  </ItemGroup>
+
+</Project>

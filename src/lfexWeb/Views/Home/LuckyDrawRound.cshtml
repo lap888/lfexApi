@@ -1,0 +1,240 @@
+﻿@{
+    ViewData["Title"] = "夺宝维护";
+}
+@using domain.enums
+<style>
+    .form-inline .col-sm-12 {
+        line-height: 55px;
+    }
+
+    .form-inline .col-sm-2 {
+        width: 80px;
+    }
+
+    .form-inline .col-sm-4 .col-sm-4 {
+        line-height: 35px;
+    }
+
+    .form-inline .control-label {
+        text-align: right;
+    }
+
+    .search .form-inline {
+        line-height: 40px;
+    }
+</style>
+
+<div class="row search">
+    <div class="form-inline">
+        <div class="form-inline">
+            <div class="form-inline">
+                <label control-label>状态:</label>
+                <select class="form-control" style="display:inline-block;width:auto;" ng-model="search.status">
+                    <option value="" selected>全部</option>
+                    <option value="0">开启中</option>
+                    <option value="1">已开奖</option>
+                    <option value="2">待开奖</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" type="button" ng-click="pageChanged(true)">搜索</button>
+        <button class="btn btn-primary" type="button" ng-click="AddRoundModal()">添加夺宝</button>
+    </div>
+</div>
+<table class="table table-hover table-condensed table-bordered" style="width:auto;">
+    <thead>
+        <tr style="height:35px;">
+            <th style="width: 5%;">编号</th>
+            <th style="width: 4%;">第几轮</th>
+            <th>开奖所需</th>
+            <th>当前已有</th>
+            <th>每次限投</th>
+            <th>商品</th>
+            <th>自动下一轮</th>
+            <th>开奖模式</th>
+            <th>开奖推迟</th>
+            <th>状态</th>
+            <th>中奖人手机</th>
+            <th style="width: 8%;">开奖日期</th>
+            <th style="width: 8%;">创建日期</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody class="wait-loaded">
+        <tr ng-repeat="m in List">
+            <td>{{m.roundId}}</td>
+            <td>{{m.level}}</td>
+            <td>{{m.needRoundNumber}}</td>
+            <td>{{m.currentRoundNumber}}</td>
+            <td>{{m.maxNumber}}</td>
+            <td>{{m.prizeName}}</td>
+            <td>{{m.autoNext ? '是':'否'}}</td>
+            <td>{{m.winnerType==0?'默认':'随机'}}</td>
+            <td>{{m.delayHour}}</td>
+            <td>{{m.status==0?'开启中':m.status==1?'已开奖':'待开奖'}}</td>
+            <td>{{m.winnerMobile}}</td>
+            <td>{{m.openTime}}</td>
+            <td>{{m.createdTime}}</td>
+            <td>  <button class="btn btn-primary" type="button" ng-click="UpdateRoundModal(m)">修改</button></td>
+        </tr>
+    </tbody>
+</table>
+<div class="mypager wait-loaded">
+    <ul uib-pagination total-items="search.recordCount" items-per-page="search.pageSize" ng-change="pageChanged()" ng-model="search.pageIndex" max-size="7"
+        class="pagination-sm" boundary-links="true" num-pages="search.numPages" boundary-link-numbers="true" first-text="首页" last-text="末页" previous-text="上一页" next-text="下一页"></ul>
+    <div class="recordCount">共 {{search.recordCount}} 条</div>
+</div>
+<div class="modal fade in" id="AddRoundView" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div style="display:inline-block; font-size:14px;">添加轮次</div>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <div style="min-height:500px;">
+                    <div style="min-height:500px;">
+                        <form name="ModifyUser">
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane active" id="setting_1">
+                                    <div class="form-inline">
+                                        <div class="col-sm-12">
+                                            <label class="control-label col-sm-3">商品:</label>
+                                            <div class="col-sm-9">
+                                                <select class="form-control" ng-model="round.prizeId" ng-options="t.prizeId as t.name for t in prizes">
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label class="control-label col-sm-3">开奖所需:</label>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" type="text" ng-model="round.needRoundNumber" placeholder="" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label class="control-label col-sm-3">每次限投:</label>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" type="text" ng-model="round.maxNumber" placeholder="" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label class="control-label col-sm-3">是否自动下轮:</label>
+                                            <div class="col-sm-9">
+                                                <select class="form-control" style="display:inline-block;width:auto;" ng-model="round.autoNext">
+                                                    <option value=1>是</option>
+                                                    <option value=0>否</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label class="control-label col-sm-3">开奖模式:</label>
+                                            <div class="col-sm-9">
+                                                <select class="form-control" style="display:inline-block;width:auto;" ng-model="round.winnerType">
+                                                    <option value=1>随机</option>
+                                                    <option value=0>默认</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label class="control-label col-sm-3">开奖推迟:</label>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" type="text" ng-model="round.delayHour" placeholder="" />
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-sm-12">
+                                            <div class="col-sm-10 col-sm-offset-2">
+                                                <button class="btn btn-success" ng-click="AddRound()" ng-disabled="AddRound.$invalid">提 交</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script type="text/javascript">
+        function showimage(obj) {
+            $("#ShowImage_Form").modal("show");
+            $("#ShowImage_Form").find("#img_show").html("<img src='" + obj.src + "' class='carousel-inner img-responsive img-rounded' style='max-width:350px; margin: 0 auto;'/>");
+        }
+    </script>
+    <script type="text/javascript">
+        $angular.add(function ($scope, $query, $timeout, $sce) {
+            $scope.search = { pageIndex: 1, pageSize: 20 };
+            $scope.round = {};
+            $scope.prizes = [];
+
+            $scope.initPrizes = function ()
+            {
+                $query.get("/LuckyDraw/GetPrizes", {}, function (response) {
+                    if (response.code === 200) {
+                        $scope.prizes = response.data.list;
+                    }
+                });
+            }
+            $scope.initPrizes();
+
+            $scope.pageChanged = function (reindex) {
+                if (reindex) {
+                    $scope.search.pageIndex = 1;
+                }
+                $query.get("/LuckyDraw/GetRounds?t="+new Date(), $scope.search, function (response) {
+                    if (response.code === 200) {
+                        $scope.List = response.data.list;
+                        $scope.search.recordCount = response.data.totalCount;
+                    }
+                });
+            };
+
+            $scope.pageChanged();
+
+            $scope.AddRoundModal = function ()
+            {
+                $scope.round = {};
+                $("#AddRoundView").modal("show");
+            }
+
+            $scope.UpdateRoundModal = function (selectRound) {
+                $scope.round = selectRound;
+                $("#AddRoundView").modal("show");
+            }
+
+            $scope.AddRound = function ()
+            {
+                //if (!$scope.prize.name)
+                //{
+                //    $Alert("请填写商品名称")
+                //    return;
+                //}
+                //if (!$scope.prize.name) {
+                //    $Alert("请填写商品描述")
+                //    return;
+                //}
+                //if (!$scope.prize.pic) {
+                //    $Alert("请填写商品图片")
+                //    return;
+                //}
+                if ($scope.round.autoNext == '1')
+                    $scope.round.autoNext = true;
+                else
+                    $scope.round.autoNext = false;
+                $query.post("/LuckyDraw/SaveRound", $scope.round, function (response) {
+                    if (response.code === 200) {
+                        $Alert("保存成功");
+                        $scope.pageChanged();
+                    }
+                });
+            }
+        });
+
+    </script>
+
+}

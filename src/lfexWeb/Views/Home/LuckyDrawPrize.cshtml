@@ -1,0 +1,162 @@
+﻿@{
+    ViewData["Title"] = "商品管理";
+}
+@using domain.enums
+<style>
+    .form-inline .col-sm-12 {
+        line-height: 55px;
+    }
+
+    .form-inline .col-sm-2 {
+        width: 80px;
+    }
+
+    .form-inline .col-sm-4 .col-sm-4 {
+        line-height: 35px;
+    }
+
+    .form-inline .control-label {
+        text-align: right;
+    }
+
+    .search .form-inline {
+        line-height: 40px;
+    }
+</style>
+
+<div class="row search">
+    <div class="form-inline">
+        <div class="form-inline">
+            <div class="form-inline">
+
+            </div>
+        </div>
+        <button class="btn btn-primary" type="button" ng-click="pageChanged(true)">搜索</button>
+        <button class="btn btn-primary" type="button" ng-click="AddPrizeModal()">添加商品</button>
+    </div>
+</div>
+<table class="table table-hover table-condensed table-bordered" style="width:auto;">
+    <thead>
+        <tr style="height:35px;">
+            <th style="width: 5%;">编号</th>
+            <th style="width: 15%;">商品名称</th>
+            <th>商品描述</th>
+            <th>图片</th>
+            <th style="width: 8%;">创建日期</th>
+        </tr>
+    </thead>
+    <tbody class="wait-loaded">
+        <tr ng-repeat="m in List">
+            <td>{{m.prizeId}}</td>
+            <td>{{m.name}}</td>
+            <td>{{m.mark}}</td>
+            <td><a target="_blank" href="{{m.pic}}"><img style="width:100px;height:100px;" ng-src="{{m.pic}}" /></a></td>
+            <td>{{m.createdTime}}</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="modal fade in" id="AddPrizeView" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document" style="height:80%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div style="display:inline-block; font-size:14px;">添加商品</div>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <div style="min-height:300px;">
+                    <div style="min-height:300px;">
+                        <form name="ModifyUser">
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane active" id="setting_1">
+                                    <div class="form-inline">
+                                        <div class="col-sm-12">
+                                            <label class="control-label col-sm-3">商品名称:</label>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" type="text" ng-model="prize.name" placeholder="" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label class="control-label col-sm-3">描述:</label>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" type="text" ng-model="prize.mark" placeholder="" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label class="control-label col-sm-3">网络图片地址:</label>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" type="text" ng-model="prize.pic" placeholder="" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="col-sm-10 col-sm-offset-2">
+                                                <button class="btn btn-success" ng-click="AddPrize()" ng-disabled="AddPrize.$invalid">提 交</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script type="text/javascript">
+        function showimage(obj) {
+            $("#ShowImage_Form").modal("show");
+            $("#ShowImage_Form").find("#img_show").html("<img src='" + obj.src + "' class='carousel-inner img-responsive img-rounded' style='max-width:350px; margin: 0 auto;'/>");
+        }
+    </script>
+    <script type="text/javascript">
+        $angular.add(function ($scope, $query, $timeout, $sce) {
+            $scope.search = { pageIndex: 1, pageSize: 20 };
+            $scope.prize = {};
+            $scope.pageChanged = function () {                
+                $query.get("/LuckyDraw/GetPrizes", {}, function (response) {
+                    if (response.code === 200) {
+                        $scope.List = response.data.list;
+                        $scope.recordCount = response.data.totalCount;
+                    }
+                });
+            };
+
+            $scope.pageChanged();
+
+            $scope.AddPrizeModal = function ()
+            {
+                $scope.prize = {};
+                $("#AddPrizeView").modal("show");
+            }
+
+            $scope.AddPrize = function ()
+            {
+                if (!$scope.prize.name)
+                {
+                    $Alert("请填写商品名称")
+                    return;
+                }
+                if (!$scope.prize.name) {
+                    $Alert("请填写商品描述")
+                    return;
+                }
+                if (!$scope.prize.pic) {
+                    $Alert("请填写商品图片")
+                    return;
+                }
+                $query.post("/LuckyDraw/SavePrize", $scope.prize, function (response) {
+                    if (response.code === 200) {
+                        $Alert("保存成功");
+                        $scope.pageChanged();
+                    }
+                });
+            }
+        });
+
+    </script>
+
+}
